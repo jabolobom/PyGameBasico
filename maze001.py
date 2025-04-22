@@ -1,12 +1,3 @@
-################################################################
-###                 M O S T R A   M A Z E                    ###
-################################################################
-### Neste teste, mostra o labirinto gerado pelo algoritmo de ###
-### Aldous-Broder                                            ###
-################################################################
-### Prof. Filipo Mor, FILIPOMOR.COM                          ###
-################################################################
-
 import pygame
 import sys
 import copy
@@ -66,27 +57,6 @@ class Celula:
         pygame.draw.line(tela, self.corLinha, arEsquerdaIni, arEsquerdaFim)
         pygame.draw.line(tela, self.corLinha, arDireitaIni, arDireitaFim)
 
-        '''
-        # linha superior
-        if (self.arestasFechadas.superior):
-            pygame.draw.line(tela, self.corLinha, arSuperiorIni, arSuperiorFim)
-        # linha inferior
-        if (self.arestasFechadas.inferior):
-            pygame.draw.line(tela, self.corLinha, arInferiorIni, arInferiorFim)
-        # linha esquerda
-        if (self.arestasFechadas.esquerda):
-            pygame.draw.line(tela, self.corLinha, arEsquerdaIni, arEsquerdaFim)
-        # linha direita
-        if (self.arestasFechadas.direita):
-            pygame.draw.line(tela, self.corLinha, arDireitaIni, arDireitaFim)
-        '''
-        '''
-        pygame.draw.line(tela, self.corLinha, arSuperiorIni, arSuperiorFim)
-        pygame.draw.line(tela, self.corLinha, arInferiorIni, arInferiorFim)
-        pygame.draw.line(tela, self.corLinha, arEsquerdaIni, arEsquerdaFim)
-        pygame.draw.line(tela, self.corLinha, arDireitaIni, arDireitaFim)
-        '''
-
 
 class AldousBroder:
     def __init__(self, qtLinhas, qtColunas, aresta, celulaPadrao):
@@ -126,9 +96,12 @@ class AldousBroder:
         unvisitedCells = self.qtLinhas * self.qtColunas
         currentCellLine, currentCellColumn, neighCellLine, neighCellColumn = -1, -1, -1, -1
 
-        # sorteia uma célula qualquer
-        currentCellLine = randint(0, self.qtLinhas - 1)
-        currentCellColumn = randint(0, self.qtColunas - 1)
+        self.matriz[1][0].visited = True
+        self.matriz[1][0].aberta = True  # entrada aberta
+        self.matriz[1][0].arestasFechadas.esquerda = False
+        unvisitedCells -= 1
+
+        currentCellColumn, currentCellLine = 1,0
 
         while (unvisitedCells > 0):
 
@@ -136,19 +109,23 @@ class AldousBroder:
             neighCellLine, neighCellColumn = self.SorteiaCelulaVizinha(currentCellLine, currentCellColumn)
 
             if (self.matriz[neighCellLine][neighCellColumn].visited == False):
-                # incluir aqui a rotina paar abrir uma passagem. Por enquanto, apenas pinta a célula
+
                 self.matriz[currentCellLine][currentCellColumn].aberta = True
                 self.matriz[neighCellLine][neighCellColumn].visited = True
-                '''
-                self.matriz[currentCellLine][currentCellColumn].aberta = True
-                self.matriz[neighCellLine][neighCellColumn].aberta     = True
-                self.matriz[neighCellLine][neighCellColumn].visited    = True
-                self.matriz[neighCellLine][neighCellColumn].corPreenchimento = (0, 255, 0)
-                '''
+
                 unvisitedCells -= 1
-                # cont += 1
 
             currentCellLine, currentCellColumn = neighCellLine, neighCellColumn
+
+        self.matriz[self.qtLinhas - 1][self.qtColunas-2].visited = True
+        self.matriz[self.qtLinhas - 1][self.qtColunas-2].aberta = True # saida aberta
+        self.matriz[self.qtLinhas - 1][self.qtColunas-2].arestasFechadas.direita = False
+        entrance = self.matriz[1][0] # marcar entrada e saida pra força bruta
+        exit = self.matriz[self.qtLinhas - 1][self.qtColunas-2] # saida pra força bruta
+
+    def forcaBruta(self):
+        currentCellColumn, currentCellLine = 1,0
+        neighCellLine, neighCellColumn = self.SorteiaCelulaVizinha(currentCellLine, currentCellColumn) # tentativa
 
 
 class Malha:
@@ -204,9 +181,9 @@ def main():
     [largura, altura] = [600, 300]
 
     ### Dimensões da malha (matriz NxM)
-    N = 20  # número de linhas
-    M = 20  # número de colunas
-    aresta = 10  # dimensão dos lados das células
+    N = 10  # número de linhas
+    M = 10  # número de colunas
+    aresta = 20  # dimensão dos lados das células
 
     # cores: preenchimento - visitada - linha - aberta
     celulaPadrao = Celula(ArestasFechadas(False, False, False, False), preto, cinza, preto, branco,False, False)
